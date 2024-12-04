@@ -1,0 +1,29 @@
+library(TwoSampleMR)
+library(data.table)
+exposure<-format_data(Sig_LN,
+                      type = "exposure",
+                      snp_col = "SNP",
+                      phenotype_col = "phenotype",
+                      beta_col = "BETA",
+                      se_col = "SE",
+                      eaf_col="AF1",
+                      effect_allele_col = "A1",
+                      other_allele_col = "A2",
+                      pval_col = "P")
+#linkage disequilibrium
+exposure_data <- clump_data(exposure, clump_r2 = 0.01, clump_kb = 10000) 
+outcome	<-format_data(MDD,
+                      snps= exposure_data$SNP,
+                      type = "outcome",
+                      snp_col = "SNP",
+                      ##phenotype_col = "phenotype",
+                      beta_col = "beta",
+                      se_col = "beta.se",
+                      eaf_col="eaf",
+                      effect_allele_col = "A1",
+                      other_allele_col = "A2",
+                      pval_col = "P")
+loneliness.MDD.data<-harmonise_data(exposure_dat=exposure_data,outcome_dat=outcome)
+res_loneliness.MDD <- mr(loneliness.MDD.data)
+OR_res_loneliness.MDD =generate_odds_ratios(res_loneliness.MDD)
+write.table(OR_res_loneliness.MDD,"loneliness.MDD_res.csv",row.names=FALSE,col.names=TRUE,sep=",")
