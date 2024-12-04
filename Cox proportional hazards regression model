@@ -1,0 +1,42 @@
+library("survival")
+library("survminer")
+library(epikit)##
+library(broom)
+hh1<-BrainDisorders_rm3Y%>%do(broom::tidy(coxph(Surv(MDD_yr, MDD_status) ~ social_isolation+age+sex+race+education+SES, data=.), conf.int=TRUE, exponentiate = TRUE))
+hh2<-BrainDisorders_rm3Y%>%do(broom::tidy(coxph(Surv(Anxiety_yr, Anxiety_status) ~ social_isolation+age+sex+race+education+SES, data=.), conf.int=TRUE, exponentiate = TRUE))
+hh3<-BrainDisorders_rm3Y%>%do(broom::tidy(coxph(Surv(Bipolar_yr, Bipolar_status) ~ social_isolation+age+sex+race+education+SES, data=.), conf.int=TRUE, exponentiate = TRUE))
+hh4<-BrainDisorders_rm3Y%>%do(broom::tidy(coxph(Surv(Schizophrenia_yr, Schizophrenia_status) ~ social_isolation+age+sex+race+education+SES, data=.), conf.int=TRUE, exponentiate = TRUE))
+hh5<-BrainDisorders_rm3Y%>%do(broom::tidy(coxph(Surv(Sleep_yr, Sleep_status) ~ social_isolation+age+sex+race+education+SES, data=.), conf.int=TRUE, exponentiate = TRUE))
+hh6<-BrainDisorders_rm3Y%>%do(broom::tidy(coxph(Surv(Dementia_yr, Dementia_status) ~ social_isolation+age+sex+race+education+SES, data=.), conf.int=TRUE, exponentiate = TRUE))
+hh7<-BrainDisorders_rm3Y%>%do(broom::tidy(coxph(Surv(AD_yr, AD_status) ~ social_isolation+age+sex+race+education+SES, data=.), conf.int=TRUE, exponentiate = TRUE))
+hh8<-BrainDisorders_rm3Y%>%do(broom::tidy(coxph(Surv(Stroke_yr, Stroke_status) ~ social_isolation+age+sex+race+education+SES, data=.), conf.int=TRUE, exponentiate = TRUE))
+hh9<-BrainDisorders_rm3Y%>%do(broom::tidy(coxph(Surv(PD_yr, PD_status) ~ social_isolation+age+sex+race+education+SES, data=.), conf.int=TRUE, exponentiate = TRUE))
+hh10<-BrainDisorders_rm3Y%>%do(broom::tidy(coxph(Surv(Dystonia_yr, Dystonia_status) ~ social_isolation+age+sex+race+education+SES, data=.), conf.int=TRUE, exponentiate = TRUE))
+hh11<-BrainDisorders_rm3Y%>%do(broom::tidy(coxph(Surv(MS_yr, MS_status) ~ social_isolation+age+sex+race+education+SES, data=.), conf.int=TRUE, exponentiate = TRUE))
+hh12<-BrainDisorders_rm3Y%>% do(broom::tidy(coxph(Surv(Epilepsy_yr, Epilepsy_status) ~ social_isolation+age+sex+race+education+SES, data=.), conf.int=TRUE, exponentiate = TRUE))
+hh13<-BrainDisorders_rm3Y%>%do(broom::tidy(coxph(Surv(Encephalitis_yr, Encephalitis_status) ~ social_isolation+age+sex+race+education+SES, data=.), conf.int=TRUE, exponentiate = TRUE))
+##合并数据
+hh1 <- hh1 %>% ungroup() %>% dplyr::select(term, estimate, conf.low, conf.high, p.value) %>% filter(term=="social_isolation1") 
+hh2 <- hh2 %>% ungroup() %>% dplyr::select(term, estimate, conf.low, conf.high, p.value) %>% filter(term=="social_isolation1") 
+hh3 <- hh3 %>% ungroup() %>% dplyr::select(term, estimate, conf.low, conf.high, p.value) %>% filter(term=="social_isolation1") 
+hh4 <- hh4 %>% ungroup() %>% dplyr::select(term, estimate, conf.low, conf.high, p.value) %>% filter(term=="social_isolation1") 
+hh5 <- hh5 %>% ungroup() %>% dplyr::select(term, estimate, conf.low, conf.high, p.value) %>% filter(term=="social_isolation1") 
+hh6 <- hh6 %>% ungroup() %>% dplyr::select(term, estimate, conf.low, conf.high, p.value) %>% filter(term=="social_isolation1")
+hh7 <- hh7 %>% ungroup() %>% dplyr::select(term, estimate, conf.low, conf.high, p.value) %>% filter(term=="social_isolation1") 
+hh8 <- hh8 %>% ungroup() %>% dplyr::select(term, estimate, conf.low, conf.high, p.value) %>% filter(term=="social_isolation1") 
+hh9 <- hh9 %>% ungroup() %>% dplyr::select(term, estimate, conf.low, conf.high, p.value) %>% filter(term=="social_isolation1") 
+hh10 <- hh10 %>% ungroup() %>% dplyr::select(term, estimate, conf.low, conf.high, p.value) %>% filter(term=="social_isolation1") 
+hh11 <- hh11 %>% ungroup() %>% dplyr::select(term, estimate, conf.low, conf.high, p.value) %>% filter(term=="social_isolation1") 
+hh12 <- hh12 %>% ungroup() %>% dplyr::select(term, estimate, conf.low, conf.high, p.value) %>% filter(term=="social_isolation1")
+hh13 <- hh13 %>% ungroup() %>% dplyr::select(term, estimate, conf.low, conf.high, p.value) %>% filter(term=="social_isolation1") 
+##
+hhh <- rbind(hh1,hh2,hh3,hh4,hh5,hh6,hh7,hh8,hh9,hh10,hh11,hh12,hh13)
+##
+new_column <- data.frame("Disorders" = c("MDD", "Anxiety", "Bipolar", "Schizophrenia", "Sleep", "Dementia", "AD", "Stroke", "PD", "Dystonia", "MS", "Epilepsy", "Encephalitis"))
+hhh <- cbind(new_column, hhh)
+##
+head(hhh)
+hhh_sorted_social_isolation <- hhh[order(hhh$p.value), ]# 根据p-value列进行排序
+hhh_sorted_social_isolation$p.fdr <- p.adjust(hhh_sorted_social_isolation$p.value, method = "BH")
+##
+write.table(hhh_sorted_social_isolation,"COX_social_isolation_result_rm3Y.csv",row.names=FALSE, col.names=TRUE,sep=",")
