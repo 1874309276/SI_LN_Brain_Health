@@ -1,0 +1,23 @@
+##behavioral phenotypes
+model=lm(FI~social_isolation+age+sex+race+education+SES, data=crossFI)
+summary(model)
+##
+Model <- '
+A.bl =~ social_isolation_ins0
+A.fo =~ social_isolation_ins2
+B.bl =~ FI.ins0
+B.fo =~ FI.ins2
+
+A.fo ~ b1*A.bl +b2*B.bl+age+sex+race+education+SES
+B.fo ~ b3*A.bl +b4*B.bl+age+sex+race+education+SES
+
+A.bl ~~ A.fo
+B.bl ~~ B.fo
+'
+CLPM.fit.FI <- sem(Model,data = crossFI,se ="boot",bootstrap = 10000) 
+summary(CLPM.fit.FI,fit.measure=T,standardized=T)
+
+##brain structures
+model=lm(WMH~social_isolation+age+sex+race+education+SES+scanning_sites+ICV, data=WMH)
+summary(model)
+
