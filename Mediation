@@ -1,0 +1,20 @@
+##Anxiety
+library(data.table)
+library("mediation")
+Inflammation_brain_disorders<-fread("Inflammation_BrainDisorder_co.csv")
+colnames(Inflammation_brain_disorders) <- gsub("-0.0", "_0.0", colnames(Inflammation_brain_disorders))
+#X30730_0.0
+fit.dv<-glm(Anxiety_status~X30730_0.0+social_loneliness+age+sex+race+education+SES+TDI+BMI+Smoking+Alcohol+LongStandingIllness+PhysicalActivity,family=binomial(link=logit), Inflammation_brain_disorders)
+M2<-coef(summary(fit.dv))[2,]
+fit.mediator<-lm(X30730_0.0~social_isolation+Age+Sex+Ethnicity+College+H_income+TDI+BMI+Smoking+Alcohol+LongStandingIllness+PhysicalActivity, Inflammation_brain_disorders)
+M1<-coef(summary(fit.mediator))[2,]
+results<-mediate(fit.mediator,fit.dv,treat="social_isolation",mediator="X30730_0.0",sims=1000)
+SUM<-summary(results)
+ACME<-c(SUM$d.avg,SUM$d.avg.ci,SUM$d.avg.p)
+ADE<-c(SUM$z.avg,SUM$z.avg.ci,SUM$z.avg.p)
+Prop<-c(SUM$n.avg,SUM$n.avg.ci,SUM$n.avg.p)
+Total<-c(SUM$tau.coef,SUM$tau.ci,SUM$tau.p)
+res<-rbind(ACME,ADE,Prop,Total)
+results<-rbind(M1,M2,res)
+colnames(results)<-c("Estimate","SE/95L","Z/95U","P")
+write.csv(results,paste("/public/home/ylzhao/ZhaoYongLi/Brain_health_NC/result/isolation/Anxiety/","X30730_0.0_loneliness_Anxiety.csv",sep=''),row.names=T,quote=F)
